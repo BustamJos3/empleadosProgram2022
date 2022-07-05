@@ -1,0 +1,6 @@
+# Links a los retos del ciclo 2
+--->Para realizar las entregas
+[Enlace para la entrega del reto1](https://github.com/BustamJos3/mintic_c2_fp_code.git)
+
+- Todos los entregables estan ubicados en la carpeta challenges, y separados en su respectiva carpeta 
+nombrada reto(número del reto)_to_send.
