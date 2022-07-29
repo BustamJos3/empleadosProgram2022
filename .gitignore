@@ -1,3 +1,4 @@
-dir_to_ignore/challenges/reto1/reto1_g53_jdbs
-dir_to_ignore/challenges/reto1/uml_diagrams
-dir_to_ignore/lectures
+challenges/reto1/reto1_g53_jdbs/
+challenges/reto1/uml_diagrams/
+challenges/uml_diagrams/
+lectures/
