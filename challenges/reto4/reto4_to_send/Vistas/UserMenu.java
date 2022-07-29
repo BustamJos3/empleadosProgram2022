@@ -38,6 +38,8 @@ public class UserMenu extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         //call listarEmpleados()
         listarEmpleados();
+        //call listarDepartamentos()
+        listarDepartamentos();
     }
 
     //method to call all empleados from dbase
@@ -105,7 +107,7 @@ public class UserMenu extends javax.swing.JFrame {
         String nombreDepartamento = txtDepartamento.getText();
         if (nombreDepartamento.isEmpty()) {
             //check this query
-            String query = "SELECT nombreSucursal,nombreDepartamaneto, CONCAT('Zona',zona,'. ',tipoCalle,' ',numero1,' #No.',numero2,' - ',numero3) AS direccion FROM direccion INNER JOIN sucursal WHERE idDireccion=FK_idDireccion AND nombreDepartamento LIKE '%%' ORDER BY nombreDepartamento;";
+            String query = "SELECT nombreSucursal,nombreDepartamento, CONCAT('Zona',zona,'. ',tipoCalle,' ',numero1,' #No.',numero2,' - ',numero3) AS direccion FROM direccion INNER JOIN sucursal WHERE idDireccion=FK_idDireccion AND nombreDepartamento LIKE '%%' ORDER BY nombreDepartamento;";
             System.out.println(query);
             try {
                 connection = conexion.getConnection();
@@ -125,7 +127,7 @@ public class UserMenu extends javax.swing.JFrame {
             }
         } else {
             //this query is probably fine
-            String query = "SELECT nombreSucursal,nombreDepartamaneto, CONCAT('Zona',zona,'. ',tipoCalle,' ',numero1,' #No.',numero2,' - ',numero3) AS direccion FROM direccion INNER JOIN sucursal WHERE idDireccion=FK_idDireccion AND nombreDepartamento LIKE '%"+nombreDepartamento+"%' ORDER BY nombreDepartamento;";
+            String query = "SELECT nombreSucursal,nombreDepartamaneto, CONCAT('Zona',zona,'. ',tipoCalle,' ',numero1,' #No.',numero2,' - ',numero3) AS direccion FROM direccion INNER JOIN sucursal WHERE idDireccion=FK_idDireccion AND nombreDepartamento LIKE '%" + nombreDepartamento + "%' ORDER BY nombreDepartamento;";
             System.out.println(query);
             try {
                 connection = conexion.getConnection();
