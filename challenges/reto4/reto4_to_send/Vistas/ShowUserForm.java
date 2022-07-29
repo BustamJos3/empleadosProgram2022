@@ -35,9 +35,6 @@ public class ShowUserForm extends javax.swing.JDialog {
 
     //function tho show info on textfields
     public void recibeDatos(String nombre, String apellidos, String tipoDocumento, String documento, String correo, String sucursal) {
-
-        System.out.println("nombre: " + nombre + " " + apellidos + ", documento: " + tipoDocumento + " " + documento + ", correo: " + correo);
-        //get content of txtFields
         txtNombre.setText(nombre);
         txtApellidos.setText(apellidos);
         txtTipoDocumento.setText(tipoDocumento);
@@ -48,104 +45,62 @@ public class ShowUserForm extends javax.swing.JDialog {
 
     //method to update employee info
     public void ActualizarEmpleado() {
-
-        //fields that will be used to search id: correo, documento
         String documento = txtDocumento.getText();
-        //editable fields: nombre, apellidos, correo
-        String queryIdEmpleado = "SELECT idEmp FROM `empleado` WHERE documento= '" + documento + "';";
-        System.out.println(queryIdEmpleado);
+        String queryIdEmpleado = "SELECT idEmp FROM empleado WHERE documento='" + documento + "';";
         try {
-
-            //líneas que creo están dando conflicto
-            //query to search for id with correo and documento
             connection = conexion.getConnection();
             st = connection.createStatement();
             rs = st.executeQuery(queryIdEmpleado);
             while (rs.next()) {
-                //capture idEmp from rs
                 int idEmpleado = rs.getInt("idEmp");
-                //fields that can be edited
                 String nombre = txtNombre.getText();
                 String apellidos = txtApellidos.getText();
                 String correo = txtCorreo.getText();
                 if (nombre.isEmpty()) {
-
                     JOptionPane.showMessageDialog(this, "El nombre del empleado es requerido", "", JOptionPane.WARNING_MESSAGE);
-
                 } else if (apellidos.isEmpty()) {
-
                     JOptionPane.showMessageDialog(this, "Los apellidos son requeridos", "", JOptionPane.WARNING_MESSAGE);
-
                 } else if (correo.isEmpty()) {
-
                     JOptionPane.showMessageDialog(this, "El correo es requerido", "", JOptionPane.WARNING_MESSAGE);
-
                 } else {
-
-                    String query = "UPDATE empleados SET nombreEmp='" + nombre + "'," + "apellidos='" + apellidos + "'," + "correo='" + correo + "'" + "WHERE idEmp=" + idEmpleado + ";";
-                    System.out.println(query);
-
-                    //upload to MySQL
+                    String query = "UDATED empleado SET nombreEmp='" + nombre + "',apellidos='" + apellidos + "',correo='" + correo + "' WHERE idEmp=" + idEmpleado + ";";
                     try {
-
+                        connection = conexion.getConnection();
+                        st = connection.createStatement();
                         st.executeUpdate(query);
-
-                        JOptionPane.showMessageDialog(this, "El usuario se ha actualizado.");
-
+                        JOptionPane.showMessageDialog(this, "El empleado se ha actualizado.");
+                        this.dispose();
                     } catch (SQLException e) {
-
                         JOptionPane.showMessageDialog(this, "No se actualizó el empleado", "", JOptionPane.WARNING_MESSAGE);
-
                     }
-
                 }
-
             }
-            //close window
-            this.dispose();
-
         } catch (SQLException e) {
-            System.out.println("ERROR en try1 " + e);
+            System.out.println("ERROR actualizando empleados " + e);
         }
-
     }
 
     //method to delete employee
     private void EliminarEmpleado() {
-
         String documento = txtDocumento.getText();
-        //make query
-        String queryEmpleado = "SELECT idEmp FROM empleado WHERE documento='" + documento + "'";
-
-        //connect with DBase
+        String queryIdEmpleado = "SELECT idEmp from empleado WHERE documento='" + documento + "';";
         try {
-
             connection = conexion.getConnection();
-
             st = connection.createStatement();
-
-            rs = st.executeQuery(queryEmpleado);
+            rs = st.executeQuery(queryIdEmpleado);
             while (rs.next()) {
                 int idEmpleado = rs.getInt("idEmp");
-                String queryEliminar = "DELETE FROM empleado WHERE documento='" + documento + "'";
-
+                String queryEliminar = "DELETE FROM empleado WHERE documento='" + documento + "';";
                 try {
                     st.executeUpdate(queryEliminar);
-                    JOptionPane.showMessageDialog(this, "Se eliminó el empleado");
-                    //close window
-                    this.dispose();
-
-                } catch (SQLException e) {
-                    JOptionPane.showMessageDialog(this, "No se pudo eliminar el empleado", "", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "El empleado ha sido eliminado");
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "El empleado no ha sido eliminado", "", JOptionPane.ERROR_MESSAGE);
                 }
             }
-
         } catch (SQLException e) {
-
-            System.out.println(e);
-
+            System.out.println("ERROR eliminando empleado " + e);
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -159,7 +114,6 @@ public class ShowUserForm extends javax.swing.JDialog {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        txtSucursal = new javax.swing.JTextField();
         txtNombre = new javax.swing.JTextField();
         txtApellidos = new javax.swing.JTextField();
         txtTipoDocumento = new javax.swing.JTextField();
@@ -169,6 +123,8 @@ public class ShowUserForm extends javax.swing.JDialog {
         txtCorreo = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         btnEliminar = new javax.swing.JButton();
+        txtSucursal = new javax.swing.JTextField();
+        btnSubirFoto = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -185,13 +141,6 @@ public class ShowUserForm extends javax.swing.JDialog {
         jLabel5.setText("TipoDocumento");
 
         jLabel6.setText("Documento");
-
-        txtSucursal.setEditable(false);
-        txtSucursal.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSucursalActionPerformed(evt);
-            }
-        });
 
         txtTipoDocumento.setEditable(false);
         txtTipoDocumento.addActionListener(new java.awt.event.ActionListener() {
@@ -231,6 +180,15 @@ public class ShowUserForm extends javax.swing.JDialog {
             }
         });
 
+        txtSucursal.setEditable(false);
+
+        btnSubirFoto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/avatar_login.png"))); // NOI18N
+        btnSubirFoto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSubirFotoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -238,48 +196,49 @@ public class ShowUserForm extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(19, 19, 19)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel5)
-                                    .addComponent(jLabel6)
-                                    .addComponent(jLabel7))
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtCorreo, javax.swing.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)
-                                    .addComponent(txtApellidos)
-                                    .addComponent(txtTipoDocumento)
-                                    .addComponent(txtDocumento)
-                                    .addComponent(txtNombre)))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(0, 21, Short.MAX_VALUE)
-                                .addComponent(btnActualizar)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnEliminar)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnCancelar))))
+                        .addGap(0, 36, Short.MAX_VALUE)
+                        .addComponent(btnActualizar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnEliminar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnCancelar))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jLabel1))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(55, 55, 55)
-                                .addComponent(jLabel2)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel2))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtCorreo)
+                            .addComponent(txtApellidos)
+                            .addComponent(txtTipoDocumento)
+                            .addComponent(txtDocumento)
+                            .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)
+                            .addComponent(txtSucursal, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addGap(36, 36, 36))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
+                .addComponent(btnSubirFoto)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addComponent(btnSubirFoto)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(txtSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -303,7 +262,7 @@ public class ShowUserForm extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
+                .addGap(56, 56, 56)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnActualizar)
                     .addComponent(btnCancelar)
@@ -359,9 +318,9 @@ public class ShowUserForm extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtTipoDocumentoActionPerformed
 
-    private void txtSucursalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSucursalActionPerformed
+    private void btnSubirFotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubirFotoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtSucursalActionPerformed
+    }//GEN-LAST:event_btnSubirFotoActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -374,16 +333,24 @@ public class ShowUserForm extends javax.swing.JDialog {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ShowUserForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ShowUserForm.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ShowUserForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ShowUserForm.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ShowUserForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ShowUserForm.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ShowUserForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ShowUserForm.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -406,6 +373,7 @@ public class ShowUserForm extends javax.swing.JDialog {
     private javax.swing.JButton btnActualizar;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnSubirFoto;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

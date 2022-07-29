@@ -7,6 +7,7 @@ package Vistas;
 
 import Modelo.Conexion;
 import java.sql.*;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -18,6 +19,7 @@ public class SucursalForm extends javax.swing.JDialog {
     Connection connection;
     Conexion conexion = new Conexion();
     Statement st;
+    ResultSet rs;
 
     public SucursalForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -26,8 +28,7 @@ public class SucursalForm extends javax.swing.JDialog {
     }
 
     public void recibeIdDireccion(int idDireccion) {
-
-        String sucursal = txtNuevaSucursal.getText();
+        String sucursal = txtSucursal.getText();
         System.out.println("Recibe: " + idDireccion);
         //idDireccion doesnt required '' cause is not text (int)
         String query = "INSERT INTO `sucursal`(`nombreSucursal`, `FK_nit`, `FK_idDireccion`) VALUES ('" + sucursal + "',999999991," + idDireccion + ");";
@@ -36,13 +37,47 @@ public class SucursalForm extends javax.swing.JDialog {
         try {
             connection = conexion.getConnection();
             //prepare statement
-            st= connection.createStatement();
+            st = connection.createStatement();
             st.executeUpdate(query);
-            
+
         } catch (SQLException e) {
             System.out.println(e);
         }
 
+    }
+
+    public void recibirDatosDireccion(String departamento, String zona, String tipoCalle, String numero1, String numero2, String numero3) {
+        String sucursal = txtSucursal.getText();
+        if (!sucursal.isEmpty()) {
+            String query = "INSERT INTO `direccion`(`zona`, `tipoCalle`, `numero1`, `numero2`,`numero3`, `nombreDepartamento`) VALUES ('" + zona + "','" + tipoCalle + "','" + numero1 + "','" + numero2 + "','" + numero3 + "','" + departamento + "');";
+            System.out.println(query);
+            try {
+                connection = conexion.getConnection();
+                st = connection.createStatement();
+                st.executeQuery(query);
+                String queryIdDireccion = "SELECT idDireccion FROM `direccion` WHERE nombreDepartamento = '" + departamento + "' AND zona = '" + zona + "' AND tipoCalle = '" + tipoCalle + "' AND numero1 = '" + numero1 + "'AND numero2 ='" + numero2 + "' AND numero3 = '" + numero3 + "';";
+                System.out.println(queryIdDireccion);
+                try {
+                    rs = st.executeQuery(queryIdDireccion);
+                    while (rs.next()) {
+                        int idDireccion = rs.getInt("idDireccion");
+                        String queryInsertSucursal = "INSERT INTO `sucursal`(`nombreSucursal`, `FK_nit`,`FK_idDireccion`) VALUES ('" + sucursal + "',999999991," + idDireccion + ")";
+                        System.out.println(queryInsertSucursal);
+                        try {
+                            st.executeUpdate(queryInsertSucursal);
+                            JOptionPane.showMessageDialog(this, "La sucursal ha sido creada.");
+                        } catch (SQLException e) {
+                            System.out.println("ERROR recibiendo datos de direccion 1 " + e);
+                        }
+                    }
+                } catch (SQLException e) {
+                    System.out.println("ERROR recibiendo datos de direccion 2 " + e);
+                }
+            } catch (SQLException e) {
+                System.out.println("ERROR recibiendo datos de direccion 3 " + e);
+                JOptionPane.showMessageDialog(this, "No fue posible crear la direccon", "Sucursales Mision TIC", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -52,7 +87,7 @@ public class SucursalForm extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        txtNuevaSucursal = new javax.swing.JTextField();
+        txtSucursal = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
 
         jLabel1.setText("jLabel1");
@@ -75,7 +110,7 @@ public class SucursalForm extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(txtNuevaSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton1)
                 .addGap(0, 24, Short.MAX_VALUE))
@@ -85,7 +120,7 @@ public class SucursalForm extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
-                    .addComponent(txtNuevaSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
                 .addGap(0, 109, Short.MAX_VALUE))
         );
@@ -111,9 +146,9 @@ public class SucursalForm extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        
+
         this.dispose();
-        
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -163,6 +198,6 @@ public class SucursalForm extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField txtNuevaSucursal;
+    private javax.swing.JTextField txtSucursal;
     // End of variables declaration//GEN-END:variables
 }

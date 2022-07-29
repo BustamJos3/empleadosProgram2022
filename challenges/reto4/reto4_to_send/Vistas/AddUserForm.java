@@ -5,10 +5,9 @@
  */
 package Vistas;
 
-import Controlador.ComboboxSucursal;
-import Modelo.Conexion;
-import Controlador.EnumTipoDocumento;
-import Modelo.Sucursal;
+import Controlador.*;
+import Modelo.*;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -20,59 +19,45 @@ import javax.swing.*;
  */
 public class AddUserForm extends javax.swing.JDialog {
 
+    ComboBoxModel enumTipoDocumentoModel;
     //instance of class Conexion
     Conexion conexion = new Conexion();
-    //instance of class Connection, used by Conexion class
     Connection connection;
-    //all required to execute sql code to do queries
     Statement st;
     ResultSet rs;
 
-    //define comboBox variable
-    ComboBoxModel modeloEnumTipoDocumento;
-    //arraylist for lista sucursales
     ArrayList mListaSucursales;
-    //define instanciaComboboxSucursal
-    ComboboxSucursal instanciaClaseComboboxSucursal;
+    ComboboxSucursal cbSucursales;
+
+    //define comboBox variable
+    ComboBoxModel enumTipoDocumento;
 
     public AddUserForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        //take EnumTipoDocumento enum as part of the constructor through modeloEnumTipoDocumento
+        //take TipoDocumento enum as part of the constructor through modeloEnumTipoDocumento
         //SHALL be before initComponents();!!!
-        modeloEnumTipoDocumento = new DefaultComboBoxModel(EnumTipoDocumento.values());
+        enumTipoDocumentoModel = new DefaultComboBoxModel(EnumTipoDocumento.values());
+
         initComponents();
-        //call constructor of ComboboxSucursal
-        instanciaClaseComboboxSucursal = new ComboboxSucursal();
-        //define mListaSucursales
+        cbSucursales = new ComboboxSucursal();
         mListaSucursales = new ArrayList();
-        //test for LlenarCombobox
-        LlenarComboboxSucursales();
-        //center window by code
+        llenarComboboxSucursales();
         this.setLocationRelativeTo(parent);
 
     }
 
-    //to fill combobox
-    public String LlenarComboboxSucursales() {
-        //define structure of list
-        mListaSucursales = instanciaClaseComboboxSucursal.getListaSucursales();
-        //iterate over mLista (ArrayList!)
+    public String llenarComboboxSucursales() {
+        mListaSucursales = cbSucursales.getListaSucursales();
+        //dynamic lists!
         Iterator iterator = mListaSucursales.iterator();
-        //validate true or false values if it is an element next or not
         while (iterator.hasNext()) {
-            //capture values and assign them to sucursal
-            //convert to Sucursal object
             Sucursal sucursal = (Sucursal) iterator.next();
-            /**
-             * it is necessary to modify the object that cbSucursal is getting
-             * to Sucursal object: lclick/properties/TypeParameters
-             */
+            //necessary to change Type Parameteters on properties of cbSucursal on Design
             cbSucursal.addItem(sucursal);
         }
-        //assign name of sucursal selectec
         String nombreSucursal = cbSucursal.getSelectedItem().toString();
-        //to return String as it is set on function
-        String query = "SELECT idSucursal FROM sucursal WHERE nombreSucursal = '" + nombreSucursal + "';";
+        String query = "SLECT idSucursal FROM sucursal WHERE nombreSucurssal= " + nombreSucursal + ";";
+        System.out.println(query);
         return query;
     }
 
@@ -95,8 +80,8 @@ public class AddUserForm extends javax.swing.JDialog {
         txtEmail = new javax.swing.JTextField();
         btnGuardar = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
-        jLabel9 = new javax.swing.JLabel();
         cbSucursal = new javax.swing.JComboBox<>();
+        jLabel9 = new javax.swing.JLabel();
         btnSubirFoto = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -113,12 +98,7 @@ public class AddUserForm extends javax.swing.JDialog {
 
         jLabel5.setText("Tipo de documento");
 
-        cbTipoDocumento.setModel(modeloEnumTipoDocumento);
-        cbTipoDocumento.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbTipoDocumentoActionPerformed(evt);
-            }
-        });
+        cbTipoDocumento.setModel(enumTipoDocumento);
 
         jLabel6.setText("Documento");
 
@@ -156,76 +136,87 @@ public class AddUserForm extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(256, 256, 256)
-                        .addComponent(btnCancelar))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(131, 131, 131)
-                        .addComponent(btnGuardar)))
-                .addContainerGap(205, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel2)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel6)
                             .addComponent(jLabel5)
                             .addComponent(jLabel4)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel9))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtApellidos, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE)
-                            .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE)
-                            .addComponent(cbTipoDocumento, 0, 137, Short.MAX_VALUE)
-                            .addComponent(txtDocumento, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE)
-                            .addComponent(txtEmail, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE)
-                            .addComponent(cbSucursal, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel3))
+                        .addGap(16, 16, 16)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cbTipoDocumento, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtApellidos, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnGuardar)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnCancelar))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(jLabel7)
+                                            .addComponent(jLabel6))
+                                        .addGap(16, 16, 16))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel9)
+                                        .addGap(18, 18, 18)))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtDocumento, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cbSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jLabel1)
+                            .addGap(63, 63, 63)
+                            .addComponent(jLabel2)
+                            .addGap(32, 32, 32))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                 .addComponent(btnSubirFoto)
-                .addGap(30, 30, 30))
+                .addGap(21, 21, 21))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel2)
-                            .addComponent(btnSubirFoto))
-                        .addGap(18, 18, 18)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addGap(44, 44, 44)))
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(txtApellidos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(cbTipoDocumento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(txtDocumento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel7)
-                            .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(btnSubirFoto))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(cbSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel4)
+                    .addComponent(txtApellidos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(cbTipoDocumento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(txtDocumento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnGuardar)
-                    .addComponent(btnCancelar))
-                .addGap(31, 31, 31))
+                    .addComponent(btnCancelar)
+                    .addComponent(btnGuardar))
+                .addGap(36, 36, 36))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -234,7 +225,7 @@ public class AddUserForm extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 44, Short.MAX_VALUE))
+                .addGap(0, 11, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -249,79 +240,39 @@ public class AddUserForm extends javax.swing.JDialog {
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         String nombre = txtNombre.getText();
         String apellidos = txtApellidos.getText();
-        //item selected by index number ->convert to string
-        /**
-         * ERROR selecting Item String tipoDocumento =
-         * (String)cbTipoDocumento.getSelectedItem(); USE .getSelectedItem() +
-         * "";
-         */
-
-        String tipoDocumento = "" + cbTipoDocumento.getSelectedItem();
-
+        String tipoDocumento = cbTipoDocumento.getSelectedItem().toString();
         String documento = txtDocumento.getText();
         String email = txtEmail.getText();
-
-        //call LlenarComboboxSucursales() to save sucursal on var, to put it on query
-        String queryIdSucursal = LlenarComboboxSucursales();
-        //test to see if sucursal name is correct
-        System.out.println(queryIdSucursal);
-
-        //no empty fields
+        String queryNombreSucursal = llenarComboboxSucursales();
+        System.out.println(queryNombreSucursal);
         if (nombre.isEmpty() || apellidos.isEmpty() || documento.isEmpty() || email.isEmpty()) {
-
-            JOptionPane.showMessageDialog(this, "Faltan campos por diligenciar", "Nuevo empleado", JOptionPane.WARNING_MESSAGE);
-
+            JOptionPane.showMessageDialog(this, "Faltan campos por diligenciar", "Nuevo empleado",
+                    JOptionPane.WARNING_MESSAGE);
         } else {
-
-            //to get FK_idSucursal
             try {
                 connection = conexion.getConnection();
-
                 st = connection.createStatement();
-
-                rs = st.executeQuery(queryIdSucursal);
-
+                rs = st.executeQuery(queryNombreSucursal);
                 while (rs.next()) {
-                    //get FK_idSucursal
                     int idSucursal = rs.getInt("idSucursal");
-
-                    //create String with SQL code to create an empleado; add FK_idSucursal
-                    String queryCrearEmpleado = "INSERT INTO Empleado (nombreEmp, apellidos, tipoDocumento, documento, correo, FK_idSucursal) VALUES ('" + nombre
-                            + "','" + apellidos + "','" + tipoDocumento + "','" + documento + "','" + email + "', " + idSucursal + ")";
-
+                    String queryCrearEmpleado = "INSERT INTO empleado(`nombreEmp`,`apellidos`,`tipoDocumento`,`documento`, `correo`, `FK_idSucursal`) VALUES('" + nombre + "','" + apellidos + "','" + tipoDocumento + "','" + documento + "','" + email + "'," + idSucursal + ")";
+                    System.out.println(queryCrearEmpleado);
                     try {
-
-                        //STABLISH CONNECTION!
                         connection = conexion.getConnection();
-
                         st = connection.createStatement();
-
                         st.executeUpdate(queryCrearEmpleado);
-                        
-                        System.out.println(queryCrearEmpleado);
-
-                        JOptionPane.showMessageDialog(this, "Registro exitoso", "Nuevo empleado", JOptionPane.INFORMATION_MESSAGE);
-
+                        JOptionPane.showMessageDialog(this, "Registro exitoso", "Nuevo empleado",
+                                JOptionPane.INFORMATION_MESSAGE);
                     } catch (SQLException e) {
-
-                        JOptionPane.showMessageDialog(this, "No se pudo crear el empleado", "Nuevo empleado", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "No se pudo crear el empleado", "Nuevo empleado",
+                                JOptionPane.ERROR_MESSAGE);
                     }
-
                 }
             } catch (SQLException e) {
-                System.out.println("ERROR en 1er try, guardando empleado " + e);
+                System.out.println(e);
             }
-
-            //test
-            System.out.println("nombre: " + nombre + " " + apellidos
-                    + ", documento: " + tipoDocumento + " " + documento
-                    + ", correo: " + email);
-
         }
-
-        //dispose of window
         this.dispose();
-
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
@@ -331,22 +282,12 @@ public class AddUserForm extends javax.swing.JDialog {
 
     }//GEN-LAST:event_btnCancelarActionPerformed
 
-    private void cbTipoDocumentoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbTipoDocumentoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbTipoDocumentoActionPerformed
-
     private void btnSubirFotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubirFotoActionPerformed
-        
-        //ERROR pending
-        //CargueArchivos cargueFoto= new CargueArchivos(parent, true);
-        
+        //for now, commented
+        //CargueArchivos cargueFoto=new CargueArchivos(parent, true);
         //cargueFoto.setVisible(true);
-        
     }//GEN-LAST:event_btnSubirFotoActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

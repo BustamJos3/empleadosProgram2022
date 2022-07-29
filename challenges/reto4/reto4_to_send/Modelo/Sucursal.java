@@ -1,16 +1,14 @@
-
 package Modelo;
 
-
 public class Sucursal {
-    
+
     private int idSucursal;
     private String nombreSucursal;
-    
+
     //constructor
     public Sucursal() {
-        this.idSucursal=0;
-        this.nombreSucursal="";
+        this.idSucursal = 0;
+        this.nombreSucursal = "";
     }
 
     @Override
@@ -18,7 +16,7 @@ public class Sucursal {
         //return name of the sucursal
         return getNombreSucursal();
     }
-    
+
     /**
      * @return the idSucursal
      */
@@ -46,9 +44,4 @@ public class Sucursal {
     public void setNombreSucursal(String nombreSucursal) {
         this.nombreSucursal = nombreSucursal;
     }
-
-    
-    
-    
-    
 }

@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Controlador;
+package Modelo;
 
 /**
  *
  * @author EL MAGO
  */
-public enum EnumTipoDocumento {
+public enum TipoDocumento {
     
     CedulaCiudadania,
     CedulaExtranjera,

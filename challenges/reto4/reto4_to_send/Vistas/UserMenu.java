@@ -6,6 +6,7 @@
 package Vistas;
 
 import Controlador.*;
+
 import Modelo.Conexion;
 import java.sql.*;
 import javax.swing.ComboBoxModel;
@@ -14,10 +15,6 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * TRABAJO INDEPENDIENTE: implementar la vista que permita editar, eliminar, una
- * sucursal con su dirección--->RETO 4
- */
-/**
  *
  * @author EL MAGO
  */
@@ -25,109 +22,22 @@ public class UserMenu extends javax.swing.JFrame {
 
     //instance of class Conexion
     Conexion conexion = new Conexion();
-    //instance of class Connection, used by Conexion class
     Connection connection;
-    //all required to execute sql code to do queries
     Statement st;
     ResultSet rs;
     //instance of tblEmpleados
     DefaultTableModel contenidoTablaEmpleados, contenidoTablaDepartamentos;
-
-    //variables for comboboxes
-    ComboBoxModel enumDepartamentos, enumZona, enumTipoCalle;
+    //comboboxes
+    ComboBoxModel enumDepartamento, enumZona, enumTipoCalle;
 
     public UserMenu() {
-        //comboboxes shall be generate before initComponents()
-        enumDepartamentos = new DefaultComboBoxModel(EnumDepartamento.values());
+        enumDepartamento = new DefaultComboBoxModel(EnumDepartamento.values());
         enumZona = new DefaultComboBoxModel(EnumZona.values());
         enumTipoCalle = new DefaultComboBoxModel(EnumTipoCalle.values());
-
         initComponents();
-        //center by code
         setLocationRelativeTo(null);
         //call listarEmpleados()
         listarEmpleados();
-        //call listarDepartamentos()
-        listarDepartamentos();
-    }
-
-    private void listarDepartamentos() {
-
-        String nombreDepartamento = txtDepartamento.getText();
-        //cause is empty by default
-        if (nombreDepartamento.isEmpty()) {
-            String query = "SELECT nombreSucursal, nombreDepartamento, CONCAT('Zona', zona, '. ', tipoCalle,' ', numero1,' #No.',numero2,' - ',numero3) AS direccion FROM direccion INNER JOIN sucursal WHERE idDireccion=FK_idDireccion AND nombreDepartamento LIKE '%%' ORDER BY nombreDepartamento";
-
-            try {
-                //stablish connection with dbase
-                connection = conexion.getConnection();
-                //query will be created
-                st = connection.createStatement();
-                //indicate query to execute
-                rs = st.executeQuery(query);
-
-                //save result of query
-                Object[] departamentos = new Object[3];
-                //load content on table Departamentos
-                contenidoTablaDepartamentos = (DefaultTableModel) tblDepartamentos.getModel();
-                //go through results of query by pointer .next()
-                while (rs.next()) {
-
-                    /**
-                     * nameColumns SHALL be as dbase!! if not, listarEmpleados()
-                     * wont work!!
-                     */
-                    //search in column "idEmp"
-                    departamentos[0] = rs.getString("nombreSucursal");
-                    //search for nombre and apellidos
-                    departamentos[1] = rs.getString("nombreDepartamento");
-                    //search for direction
-                    departamentos[2] = rs.getString("direccion");
-
-                    contenidoTablaDepartamentos.addRow(departamentos);
-                    tblDepartamentos.setModel(contenidoTablaDepartamentos);
-                }
-            } catch (SQLException e) {
-                System.out.println("Error listando departamentos");
-            }
-
-        } else {
-            String query = "SELECT nombreSucursal, nombreDepartamento, CONCAT('Zona', zona, '. ', tipoCalle,' ', numero1,' #No.',numero2,' - ',numero3) AS direccion FROM direccion INNER JOIN sucursal WHERE idDireccion=FK_idDireccion AND nombreDepartamento LIKE '%%' ORDER BY nombreDepartamento";
-            try {
-                //stablish connection with dbase
-                connection = conexion.getConnection();
-                //query will be created
-                st = connection.createStatement();
-                //indicate query to execute
-                rs = st.executeQuery(query);
-
-                //save result of query
-                Object[] departamentos = new Object[3];
-                //load content on table Departamentos
-                contenidoTablaDepartamentos = (DefaultTableModel) tblDepartamentos.getModel();
-                //go through results of query by pointer .next()
-                while (rs.next()) {
-
-                    /**
-                     * nameColumns SHALL be as dbase!! if not, listarEmpleados()
-                     * wont work!!
-                     */
-                    //search in column "idEmp"
-                    departamentos[0] = rs.getString("nombreSucursal");
-                    //search for nombre and apellidos
-                    departamentos[1] = rs.getString("nombreDepartamento");
-                    //search for direction
-                    departamentos[2] = rs.getString("direccion");
-
-                    contenidoTablaDepartamentos.addRow(departamentos);
-                    System.out.println("sucursal: " + departamentos[0] + ", departamento: " + departamentos[1] + "direccion: " + departamentos[2]);
-                    tblDepartamentos.setModel(contenidoTablaDepartamentos);
-                }
-            } catch (SQLException e) {
-                System.out.println("ERROR listando departamentos");
-            }
-        }
-
     }
 
     //method to call all empleados from dbase
@@ -135,133 +45,113 @@ public class UserMenu extends javax.swing.JFrame {
 
         //---FILTRO BUSQUEDA
         String filtroBusqueda = txtSearch.getText();
-
         if (filtroBusqueda.isEmpty()) {
-
-            String queryConsulta = "SELECT `idEmp`,`nombreEmp`,`apellidos`,`tipoDocumento`,`documento`,`correo`,`nombreSucursal` FROM `empleado` INNER JOIN sucursal ON empleado.FK_idSucursal = sucursal.idSucursal";
-            //try to execute query
+            String queryConsulta = "SELECT nombreEmp,apellidos,tipoDocumento,documento,correo, nombreSucursal FROM empleado INNER JOIN sucursal ON empleado.FK_idSucursal = sucursal.idSucursal";
+            System.out.println(queryConsulta);
             try {
-
-                //stablish connection with dbase
                 connection = conexion.getConnection();
-                //query will be created
                 st = connection.createStatement();
-                //indicate query to execute
                 rs = st.executeQuery(queryConsulta);
-
-                //save result of query
                 Object[] empleados = new Object[6];
-
-                //update model property of tblEmpleados
                 contenidoTablaEmpleados = (DefaultTableModel) tblEmpleados.getModel();
-
-                //go through results of query by pointer .next()
                 while (rs.next()) {
-
-                    /**
-                     * nameColumns SHALL be as dbase!! if not, listarEmpleados()
-                     * wont work!!
-                     */
-                    //search for nombre and apellidos, etc
                     empleados[0] = rs.getString("nombreEmp");
-                    //etc
                     empleados[1] = rs.getString("apellidos");
                     empleados[2] = rs.getString("tipoDocumento");
                     empleados[3] = rs.getString("documento");
                     empleados[4] = rs.getString("correo");
-                    //set value on position 5 in empleados table
                     empleados[5] = rs.getString("nombreSucursal");
-
-                    //put elements from objecto into a row for every empleado returned by query
                     contenidoTablaEmpleados.addRow(empleados);
-
-                    //asign new content to table
                     tblEmpleados.setModel(contenidoTablaEmpleados);
-
                 }
-
             } catch (SQLException e) {
-
-                System.out.println("Error listando empleados 1");
-
+                System.out.println("Error listando empleados 1 " + e);
             }
         } else {
-
-            //search by nombre or apellidos
-            String queryConsulta = "SELECT `idEmp`,`nombreEmp`,`apellidos`,`tipoDocumento`,`documento`,`correo`,`nombreSucursal` FROM `empleado` INNER JOIN sucursal WHERE empleado.FK_idSucursal = sucursal.idSucursal AND nombreEmp LIKE '%" + filtroBusqueda + "%' OR apellidos LIKE '%" + filtroBusqueda + "%'";
-            //print test
+            String queryConsulta = "SELECT nombreEmp,apellidos,tipoDocumento,documento,correo, nombreSucursal FROM empleado INNER JOIN sucursal WHERE empleado.FK_idSucursal = sucursal.idSucursal AND nombreEmp LIKE '%" + filtroBusqueda + "%' OR apellidos LIKE '%" + filtroBusqueda + "%'";
             System.out.println(queryConsulta);
-
-            //try to execute query
             try {
-
-                //stablish connection with dbase
                 connection = conexion.getConnection();
-                //query will be created
                 st = connection.createStatement();
-                //indicate query to execute
                 rs = st.executeQuery(queryConsulta);
-
-                //save result of query
                 Object[] empleados = new Object[6];
-
-                //update model property of tblEmpleados
                 contenidoTablaEmpleados = (DefaultTableModel) tblEmpleados.getModel();
-
-                //go through results of query by pointer .next()
                 while (rs.next()) {
-
-                    //search for nombre and apellidos, etc
                     empleados[0] = rs.getString("nombreEmp");
-                    //etc
                     empleados[1] = rs.getString("apellidos");
                     empleados[2] = rs.getString("tipoDocumento");
                     empleados[3] = rs.getString("documento");
                     empleados[4] = rs.getString("correo");
                     empleados[5] = rs.getString("nombreSucursal");
-
-                    //put elements from objecto into a row for every empleado returned by query
                     contenidoTablaEmpleados.addRow(empleados);
-
-                    //asign new content to table
                     tblEmpleados.setModel(contenidoTablaEmpleados);
-
                 }
-
             } catch (SQLException e) {
-
-                System.out.println("Error listando empleados 2");
-
+                System.out.println("Error listando empleados 2 " + e);
             }
-
         }
-
     }
 
-    //always dbase is changed, delete local table and pull from dbase
+    //always dbase is changed, delete local table of employees and pull from dbase
     private void borrarDatosTabla() {
-
         //.getRowCount() returns current amount of empleados
         for (int i = 0; i < tblEmpleados.getRowCount(); i++) {
-
             contenidoTablaEmpleados.removeRow(i);
             i -= 1;
-
         }
-
     }
 
-    //always dbase is changed, delete local table and pull from dbase
-    private void borrarDatosTablaDepartamentos() {
+    public void listarDepartamentos() {
+        String nombreDepartamento = txtDepartamento.getText();
+        if (nombreDepartamento.isEmpty()) {
+            //check this query
+            String query = "SELECT nombreSucursal,nombreDepartamaneto, CONCAT('Zona',zona,'. ',tipoCalle,' ',numero1,' #No.',numero2,' - ',numero3) AS direccion FROM direccion INNER JOIN sucursal WHERE idDireccion=FK_idDireccion AND nombreDepartamento LIKE '%%' ORDER BY nombreDepartamento;";
+            System.out.println(query);
+            try {
+                connection = conexion.getConnection();
+                st = connection.createStatement();
+                rs = st.executeQuery(query);
+                Object[] departamentos = new Object[3];
+                contenidoTablaDepartamentos = (DefaultTableModel) tblDepartamento.getModel();
+                while (rs.next()) {
+                    departamentos[0] = rs.getString("nombreSucursal");
+                    departamentos[1] = rs.getString("nombreDepartamento");
+                    departamentos[2] = rs.getString("direccion");
+                    contenidoTablaDepartamentos.addRow(departamentos);
+                    tblDepartamento.setModel(contenidoTablaDepartamentos);
+                }
+            } catch (SQLException e) {
+                System.out.println("ERROR listando departamentos 1");
+            }
+        } else {
+            //this query is probably fine
+            String query = "SELECT nombreSucursal,nombreDepartamaneto, CONCAT('Zona',zona,'. ',tipoCalle,' ',numero1,' #No.',numero2,' - ',numero3) AS direccion FROM direccion INNER JOIN sucursal WHERE idDireccion=FK_idDireccion AND nombreDepartamento LIKE '%"+nombreDepartamento+"%' ORDER BY nombreDepartamento;";
+            System.out.println(query);
+            try {
+                connection = conexion.getConnection();
+                st = connection.createStatement();
+                rs = st.executeQuery(query);
+                Object[] departamentos = new Object[3];
+                contenidoTablaDepartamentos = (DefaultTableModel) tblDepartamento.getModel();
+                while (rs.next()) {
+                    departamentos[0] = rs.getString("nombreSucursal");
+                    departamentos[1] = rs.getString("nombreDepartamento");
+                    departamentos[2] = rs.getString("direccion");
+                    contenidoTablaDepartamentos.addRow(departamentos);
+                    tblDepartamento.setModel(contenidoTablaDepartamentos);
+                }
+            } catch (SQLException e) {
+                System.out.println("ERROR listando departamentos 1");
+            }
+        }
+    }
 
+    private void eliminarDatosTablaDepartamento() {
         //.getRowCount() returns current amount of empleados
-        for (int i = 0; i < tblDepartamentos.getRowCount(); i++) {
-
+        for (int i = 0; i < tblDepartamento.getRowCount(); i++) {
             contenidoTablaDepartamentos.removeRow(i);
             i -= 1;
-
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -271,192 +161,193 @@ public class UserMenu extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
-        jPanel5 = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        cbDepartamento = new javax.swing.JComboBox<>();
         jLabel4 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
-        txtNumero1 = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
         cbZona = new javax.swing.JComboBox<>();
+        jLabel6 = new javax.swing.JLabel();
+        cbTipoCalle = new javax.swing.JComboBox<>();
+        txtNumero1 = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
-        cbCalle = new javax.swing.JComboBox<>();
-        jLabel8 = new javax.swing.JLabel();
-        cbDepartament = new javax.swing.JComboBox<>();
-        jLabel10 = new javax.swing.JLabel();
         txtNumero2 = new javax.swing.JTextField();
-        btnGuardar = new javax.swing.JButton();
-        jLabel11 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
         txtNumero3 = new javax.swing.JTextField();
+        btnGuardarDireccion = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tblDepartamentos = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
+        tblDepartamento = new javax.swing.JTable();
         txtDepartamento = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         btnAddUser = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblEmpleados = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
         txtSearch = new javax.swing.JTextField();
         btnSearch = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblEmpleados = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel5.setBackground(new java.awt.Color(153, 153, 153));
+        jPanel6.setBackground(new java.awt.Color(204, 204, 204));
 
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/logo.png"))); // NOI18N
+        cbDepartamento.setModel(enumDepartamento);
 
-        jLabel6.setText("Zona");
+        jLabel4.setText("Departamento");
+
+        jLabel5.setText("Zona");
 
         cbZona.setModel(enumZona);
 
-        jLabel7.setText("Tipo calle");
+        jLabel6.setText("Tipo Calle");
 
-        cbCalle.setModel(enumTipoCalle);
+        cbTipoCalle.setModel(enumTipoCalle);
 
-        jLabel8.setText("Departamento");
+        jLabel7.setText("#");
 
-        cbDepartament.setModel(enumDepartamentos);
-        cbDepartament.addActionListener(new java.awt.event.ActionListener() {
+        jLabel8.setText("-");
+
+        btnGuardarDireccion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/confirmIcon.png"))); // NOI18N
+        btnGuardarDireccion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbDepartamentActionPerformed(evt);
+                btnGuardarDireccionActionPerformed(evt);
             }
         });
 
-        jLabel10.setText("#");
-
-        btnGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/confirmIcon.png"))); // NOI18N
-        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGuardarActionPerformed(evt);
-            }
-        });
-
-        jLabel11.setText("-");
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(cbCalle, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtNumero1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel10)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtNumero2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtNumero3, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnGuardar))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(cbDepartament, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel4))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(cbZona, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(29, Short.MAX_VALUE))
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addComponent(cbDepartamento, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel5))
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addComponent(cbTipoCalle, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtNumero1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(2, 2, 2)
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtNumero2)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtNumero3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cbZona, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addGap(175, 175, 175)
+                        .addComponent(btnGuardarDireccion)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cbDepartament, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbDepartamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5)
+                    .addComponent(cbZona, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(cbTipoCalle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtNumero1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7)
+                    .addComponent(txtNumero2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8)
-                    .addComponent(cbZona, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(txtNumero1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel10)
-                        .addComponent(txtNumero3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel7)
-                        .addComponent(cbCalle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel11)
-                        .addComponent(txtNumero2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(btnGuardar))
-                .addContainerGap(17, Short.MAX_VALUE))
+                    .addComponent(txtNumero3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnGuardarDireccion)
+                .addContainerGap())
         );
 
-        tblDepartamentos.setModel(new javax.swing.table.DefaultTableModel(
+        tblDepartamento.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Sucursal", "Departamento", "Direccion"
+                "Departamento", "Zona", "Direccion"
             }
         ));
-        tblDepartamentos.addMouseListener(new java.awt.event.MouseAdapter() {
+        tblDepartamento.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tblDepartamentosMouseClicked(evt);
+                tblDepartamentoMouseClicked(evt);
             }
         });
-        jScrollPane2.setViewportView(tblDepartamentos);
+        jScrollPane2.setViewportView(tblDepartamento);
+
+        txtDepartamento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtDepartamentoActionPerformed(evt);
+            }
+        });
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/showUser.png"))); // NOI18N
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/avatar_login.png"))); // NOI18N
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
 
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton2))
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel5Layout.createSequentialGroup()
-                                .addGap(43, 43, 43)
-                                .addComponent(txtDepartamento, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton1)
-                                .addGap(0, 79, Short.MAX_VALUE))
-                            .addGroup(jPanel5Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))))
-                .addContainerGap())
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel4)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/logo.png"))); // NOI18N
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel9)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtDepartamento, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)
+                        .addGap(52, 52, 52)
                         .addComponent(jButton2))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1)
-                            .addComponent(txtDepartamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)))
-                .addContainerGap())
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 629, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(125, 125, 125))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel9)
+                            .addComponent(txtDepartamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1))
+                        .addGap(18, 18, 18))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addComponent(jButton2)
+                        .addGap(8, 8, 8)))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(26, 26, 26))
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -465,15 +356,15 @@ public class UserMenu extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(280, Short.MAX_VALUE))
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Sucursales", jPanel2);
@@ -492,15 +383,6 @@ public class UserMenu extends javax.swing.JFrame {
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/logo.png"))); // NOI18N
 
-        jLabel2.setText("Nombre");
-
-        btnSearch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/showUser.png"))); // NOI18N
-        btnSearch.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSearchActionPerformed(evt);
-            }
-        });
-
         tblEmpleados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -510,7 +392,7 @@ public class UserMenu extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -524,53 +406,73 @@ public class UserMenu extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblEmpleados);
 
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jLabel2.setText("Nombre");
+
+        btnSearch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/showUser.png"))); // NOI18N
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 179, Short.MAX_VALUE)
+                .addComponent(btnAddUser)
+                .addContainerGap(129, Short.MAX_VALUE))
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addComponent(jLabel2)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnAddUser)
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2)
-                                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(74, 74, 74)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 719, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(26, Short.MAX_VALUE))
+                        .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(35, 35, 35)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnAddUser)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(26, 26, 26)
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel4Layout.createSequentialGroup()
-                                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jLabel2))
-                                    .addComponent(btnSearch)))))
-                    .addComponent(jLabel3))
+                .addGap(20, 20, 20)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnAddUser))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(346, 346, 346))
+                .addComponent(jLabel1)
+                .addGap(32, 32, 32)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel2))
+                    .addComponent(btnSearch))
+                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(163, 163, 163))
         );
 
         jTabbedPane1.addTab("Empleados", jPanel4);
@@ -581,66 +483,33 @@ public class UserMenu extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 902, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 715, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(25, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 662, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 523, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(150, 150, 150))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 457, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 19, Short.MAX_VALUE))
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 548, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 20, Short.MAX_VALUE))
         );
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tblEmpleadosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblEmpleadosMouseClicked
-
-        //capture row selected for employee
-        int row = tblEmpleados.getSelectedRow();
-
-        String sucursal = (String) tblDepartamentos.getValueAt(row, 0);
-        //test to see sucursal variable
-        System.out.println(sucursal);
-
-        String departamento = (String) tblDepartamentos.getValueAt(row, 1);
-
-        String queryIdSucursal = "SELECT idSucursal FROM `sucursal` INNER JOIN `direccion` WHERE FK_idDireccion =idDireccion AND nombreSucursal = '" + sucursal + "';";
-
-        try {
-            connection = conexion.getConnection();
-            st = connection.createStatement();
-            rs = st.executeQuery(queryIdSucursal);
-
-            while (rs.next()) {
-
-                int idSucursal = rs.getInt("idSucursal");
-                GestionarSucursalForm gestionarSucursal = new GestionarSucursalForm(this, true);
-                gestionarSucursal.recibirDatosSucursales(idSucursal);
-                gestionarSucursal.setVisible(true);
-            }
-        } catch (SQLException e) {
-            System.out.println("ERROR en tabla departamentos " + e);
-        }
-
-    }//GEN-LAST:event_tblEmpleadosMouseClicked
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
 
@@ -648,13 +517,39 @@ public class UserMenu extends javax.swing.JFrame {
         borrarDatosTabla();
         //update
         listarEmpleados();
+
     }//GEN-LAST:event_btnSearchActionPerformed
+
+    private void tblEmpleadosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblEmpleadosMouseClicked
+
+        //capture row selected for employee
+        int row = tblEmpleados.getSelectedRow();
+        System.out.println("Fila seleccionada n°: " + row);
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Se debe seleccionar un empleado", "", JOptionPane.WARNING_MESSAGE);
+        } else {
+            String nombreEmp = tblEmpleados.getValueAt(row, 0).toString();
+            String apellidos = tblEmpleados.getValueAt(row, 1).toString();
+            String tipoDocumento = tblEmpleados.getValueAt(row, 2).toString();
+            String documento = tblEmpleados.getValueAt(row, 3).toString();
+            String correo = tblEmpleados.getValueAt(row, 4).toString();
+            String sucursal = tblEmpleados.getValueAt(row, 5).toString();
+            //visualizate jdialog ShowUserForm
+            ShowUserForm showUserForm = new ShowUserForm(this, true);
+            //load info in it with method recibeDatos() before showing window
+            showUserForm.recibeDatos(nombreEmp, apellidos, tipoDocumento, documento, correo, sucursal);
+            showUserForm.setVisible(true);
+
+            borrarDatosTabla();
+            listarEmpleados();
+        }
+    }//GEN-LAST:event_tblEmpleadosMouseClicked
 
     private void btnAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddUserActionPerformed
 
         //instance of dialog AddUserForm
-        AddUserForm addUserF = new AddUserForm(this, rootPaneCheckingEnabled);
-        addUserF.setVisible(rootPaneCheckingEnabled);
+        AddUserForm addUserF = new AddUserForm(this, true);
+        addUserF.setVisible(true);
 
         //erase data from table
         borrarDatosTabla();
@@ -662,102 +557,54 @@ public class UserMenu extends javax.swing.JFrame {
         listarEmpleados();
     }//GEN-LAST:event_btnAddUserActionPerformed
 
-    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        //capture data from Sucursal tab
-        //String nombreSucursal = txtSucursal.getText();
-        String departamentoOption = "" + cbDepartament.getSelectedItem();
-        String zonaOption = "" + cbZona.getSelectedItem();
-        String calleOption = "" + cbCalle.getSelectedItem();
+    private void txtDepartamentoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDepartamentoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtDepartamentoActionPerformed
+
+    private void tblDepartamentoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDepartamentoMouseClicked
+        int row = tblDepartamento.getSelectedRow();
+        String sucursal = (String) tblDepartamento.getValueAt(row, 0);
+        String departamento = (String) tblDepartamento.getValueAt(row, 1);
+        String queryIdSucursal = "SELECT idSucursal FROM `sucursal` INNER JOIN `direccion` WHERE FK_idDireccion = idDireccion AND nombreSucursal = '" + sucursal + "';";
+        System.out.println(queryIdSucursal);
+        try {
+            connection = conexion.getConnection();
+            st = connection.createStatement();
+            rs = st.executeQuery(queryIdSucursal);
+            while (rs.next()) {
+                int idSucursal = rs.getInt("idSucursal");
+                GestionSucursalesForm gestionarSucursal = new GestionSucursalesForm(this, true);
+                gestionarSucursal.recibirDatosSucursal(idSucursal);
+                gestionarSucursal.setVisible(true);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR obteniendo datos de la sucursal " + e);
+        }
+    }//GEN-LAST:event_tblDepartamentoMouseClicked
+
+    private void btnGuardarDireccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarDireccionActionPerformed
+        String departamento = cbDepartamento.getSelectedItem().toString();
+        String zona = cbZona.getSelectedItem().toString();
+        String tipoCalle = cbTipoCalle.getSelectedItem().toString();
         String numero1 = txtNumero1.getText();
         String numero2 = txtNumero2.getText();
         String numero3 = txtNumero3.getText();
+        if (departamento != "Seleccionaunaopcion" && tipoCalle != "Seleccionaunaopcion" && zona != "Seleccionaunaopcion"
+                && !numero1.isEmpty() && !numero2.isEmpty() && !numero3.isEmpty()) {
+            SucursalForm sucursalForm = new SucursalForm(this, true);
+            sucursalForm.setVisible(true);
+            sucursalForm.recibirDatosDireccion(departamento, zona, tipoCalle, numero1, numero2, numero3);
 
-        //**"Sucursal: " + nombreSucursal + 
-        System.out.println(", departamento: " + departamentoOption
-                + ", zona: " + zonaOption + ", tipo de calle: " + calleOption + ", número: "
-                + numero1 + " " + numero2 + " " + numero3);
-
-        //query to INSERT
-        String queryDireccion = "INSERT INTO `direccion`(`zona`, `tipoCalle`, `numero1`, `numero2`, `numero3`, `nombreDepartamento`) "
-                + "VALUES ('" + zonaOption + "','" + calleOption + "','" + numero1 + "','" + numero2 + "','" + numero3 + "','" + departamentoOption + "')";
-
-        System.out.println(queryDireccion);
-
-        try {
-            connection = conexion.getConnection();
-            st = connection.createStatement();
-            st.executeUpdate(queryDireccion);
-            //query for direction
-            /**
-             * Shall be a oneline code
-             */
-            String queryIdDireccion = "SELECT idDireccion FROM direccion WHERE nombreDepartamento='" + departamentoOption + "' AND zona='" + zonaOption + "' AND tipoCalle='" + calleOption + "'AND numero1='" + numero1 + "'AND numero2='" + numero2 + "'AND numero3='" + numero3 + "';";
-            System.out.println(queryIdDireccion);
-
-            try {
-
-                rs = st.executeQuery(queryIdDireccion);
-                //instance of SucursalForm
-                SucursalForm sucursalForm = new SucursalForm(this, true);
-                sucursalForm.setVisible(true);
-
-                while (rs.next()) {
-
-                    int idDireccion = rs.getInt("idDireccion");
-                    //call method recibeDireccion() from sucursalForm
-                    sucursalForm.recibeIdDireccion(idDireccion);
-                    System.out.println("Envía: " + idDireccion);
-                }
-            } catch (SQLException e) {
-                System.out.println(e);
-            }
-
-            borrarDatosTablaDepartamentos();
+            eliminarDatosTablaDepartamento();
             listarDepartamentos();
-            JOptionPane.showMessageDialog(this, "La sucursal ha sido creada con éxito.");
-
-        } catch (SQLException e) {
-            System.out.println(e);
-            JOptionPane.showMessageDialog(this, "No se pudo crear el departamento", "", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Faltan campos por diligenciar", "Direccion", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_btnGuardarActionPerformed
+    }//GEN-LAST:event_btnGuardarDireccionActionPerformed
 
-    private void cbDepartamentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbDepartamentActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbDepartamentActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-
-
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void tblDepartamentosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDepartamentosMouseClicked
-        int row = tblDepartamentos.getSelectedRow();
-        //System.out.println(row);
-        //get sucursal name
-        String sucursal = tblDepartamentos.getValueAt(row, 0).toString();
-
-        //query to get nombreSucursal
-        String querySucursal = "SELECT idSucursal FROM `sucursal` WHERE nombreSucursal='" + sucursal + "';";
-        System.out.println(querySucursal);
-
-        try {
-            connection = conexion.getConnection();
-            st = connection.createStatement();
-            rs = st.executeQuery(querySucursal);
-
-            while (rs.next()) {
-                int idSucursal = rs.getInt("idSucursal");
-                EmpleadoForm empleadoForm = new EmpleadoForm(this, true);
-                empleadoForm.recibeIdSucursal(idSucursal);
-                empleadoForm.setVisible(true);
-
-            }
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
-    }//GEN-LAST:event_tblDepartamentosMouseClicked
-
+    /**
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -792,31 +639,32 @@ public class UserMenu extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddUser;
-    private javax.swing.JButton btnGuardar;
+    private javax.swing.JButton btnGuardarDireccion;
     private javax.swing.JButton btnSearch;
-    private javax.swing.JComboBox<String> cbCalle;
-    private javax.swing.JComboBox<String> cbDepartament;
+    private javax.swing.JComboBox<String> cbDepartamento;
+    private javax.swing.JComboBox<String> cbTipoCalle;
     private javax.swing.JComboBox<String> cbZona;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable tblDepartamentos;
+    private javax.swing.JTable tblDepartamento;
     private javax.swing.JTable tblEmpleados;
     private javax.swing.JTextField txtDepartamento;
     private javax.swing.JTextField txtNumero1;
